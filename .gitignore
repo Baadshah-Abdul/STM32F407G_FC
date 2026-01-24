@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# But allow the drivers folder
+!drivers/
+!drivers/**
+
+# Allow this file so Git keeps the rules
+!.gitignore
+
