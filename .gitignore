@@ -1,16 +1,14 @@
-# Ignore everything
+# Ignore everything by default
 *
 
-# Allow git rules file
+# Keep git rules
 !.gitignore
 
-# Allow drivers folder structure
+# Allow drivers folder and ALL its contents
 !drivers/
-!drivers/**/
+!drivers/**
 
-# But ignore all files inside drivers by default
-drivers/**
-
-# Allow ONLY main.c inside Src
-!drivers/Src/main.c
+# Allow Src folder so we can pick one file from it
+!Src/
+!Src/main.c
 
