@@ -61,34 +61,24 @@ int main()
 
     while(1)
         {
-            // 1. Precise Timing Control: Run the loop every 5ms (200Hz)
-            // This ensures the dt (0.005f) used in PID and filters remains accurate.
+            // Run the loop every 5ms (200Hz)
             if ((get_ms() - last_time) >= 5)
             {
                 last_time = get_ms();
 
-                // 2. Sensor Data Acquisition
-                // Read raw values and apply your calibration offsets and Low Pass Filter.
                 MPU6500_Read_RawData(sensor->accel_raw, sensor->gyro_raw);
                 float acc_offsets[3] = {sensor->ax_off, sensor->ay_off, sensor->az_off};
                 float gyro_offsets[3] = {sensor->gx_off, sensor->gy_off, sensor->gz_off};
                 process_data(sensor->accel_raw, sensor->gyro_raw, acc_offsets, gyro_offsets);
 
-                // 3. Attitude Estimation
-                // Combine Gyro and Accel data via the Complementary Filter.
                 MPU6500_CalculateAngles();
 
-                // 4. PID Control Calculations
-                // Calculate how much correction is needed to reach the setpoint (0.0 degrees).
+                // PID
                 float pitch_corr = PID_Compute(&pidPitch, 0.0f, sensor->pitch, dt);
                 float roll_corr  = PID_Compute(&pidRoll,  0.0f, sensor->roll,  dt);
 
-                // 5. Motor Mixing and PWM Output
-                // Apply corrections to the base throttle and update Timer 4 Compare Registers.
                 PWM_RP(base_throttle, pitch_corr, roll_corr);
 
-                // 6. Safety Watchdog
-                // This increments every 5ms. 6000 counts / 200Hz = 30 seconds.
                 safety_counter++;
                 if (safety_counter >= 6000)
                 {
@@ -99,12 +89,10 @@ int main()
                     PWM_DisArm();
                     pidPitch.Ki =0.0f;
                     pidRoll.Ki = 0.0f;
-                    // Prevent counter from overflowing and re-triggering.
                     safety_counter = 6001;
                 }
 
-                // 7. Telemetry / Debug Printing
-                // Only print every 20th loop (10 times per second) to avoid clogging the UART bus.
+                // Only print every 20th loop
                 if(print_divider++ >= 20)
                 {
                     printf("Roll: %.2f | Pitch: %.2f\n", sensor->roll, sensor->pitch);
