@@ -1,10 +1,16 @@
 # Ignore everything
 *
 
-# But allow the drivers folder
-!drivers/
-!drivers/**
-
-# Allow this file so Git keeps the rules
+# Allow git rules file
 !.gitignore
+
+# Allow drivers folder structure
+!drivers/
+!drivers/**/
+
+# But ignore all files inside drivers by default
+drivers/**
+
+# Allow ONLY main.c inside Src
+!drivers/Src/main.c
 
