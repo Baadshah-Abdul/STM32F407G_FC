@@ -440,6 +440,9 @@ static void spi_rxe_interrupt_handle(SPI_Handle_t *pSPIHandle)
 		SPI_ApplicationEventCallback(pSPIHandle, SPI_EVENT_RX_CMPLT);
 	}
 }
+
+
+//(void) temp is used to tell the compiler that i know that this temp is not being used
 static void spi_ovr_interrupt_handle(SPI_Handle_t *pSPIHandle)
 {
 	if (pSPIHandle->TxState != SPI_BUSY_IN_TX)
