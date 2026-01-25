@@ -18,15 +18,13 @@
 #define CTRL		0xF4		//sets data acquisition options of device
 /*
 
-Bit 7, 6, 5 osrs_t[2:0] Controls oversampling of temperature data. See chapter
-3.3.2 for details.
-Bit 4, 3, 2 osrs_p[2:0] Controls oversampling of pressure data. See chapter
-3.3.1 for details.
-Bit 1, 0 mode[1:0] Controls the power mode of the device. See chapter 3.6 for details
-*/
+ Bit 7, 6, 5 osrs_t[2:0] Controls oversampling of temperature data. See chapter
+ 3.3.2 for details.
+ Bit 4, 3, 2 osrs_p[2:0] Controls oversampling of pressure data. See chapter
+ 3.3.1 for details.
+ Bit 1, 0 mode[1:0] Controls the power mode of the device. See chapter 3.6 for details
+ */
 #define CONFIG		0xF5		//sets the rate, filter and interface options of the device
-
-
 
 void SPI2_GPIO_Config(void);		//setup PB12-PB15 for spi2
 
@@ -43,6 +41,5 @@ void HW611_Config(void);	//CBS mode 00 for spi
 //writefunc
 
 //processdata
-
 
 #endif /* INC_HW_611_H_ */

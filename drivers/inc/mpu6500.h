@@ -14,8 +14,6 @@
 #include "stm32f407_spi_driver.h"
 #include <math.h>
 
-
-
 //mpu6500 reg add
 #define CONFIG				0x1A
 #define MPU_WHO_AM_I		0x75
@@ -41,8 +39,8 @@
 
 #define FILTER_SIZE 				4 //8 prev
 
-
-typedef struct {
+typedef struct
+{
 	float accel_f[3];
 	float gyro_f[3];
 	int32_t ax_sum;
@@ -57,31 +55,27 @@ typedef struct {
 	float gx_off;
 	float gy_off;
 	float gz_off;
-    int16_t accel_raw[3];
-    int16_t gyro_raw[3];
-    float roll;  			// Degrees
-    float pitch; 			// Degrees
+	int16_t accel_raw[3];
+	int16_t gyro_raw[3];
+	float roll;  			// Degrees
+	float pitch; 			// Degrees
 
-}MPU6500_FinalValue_t;
-
-
+} MPU6500_FinalValue_t;
 
 // Peripheral Initializations
 void SPI1_GPIO_Config(void);  // Setup PA5, PA6, PA7 for SPI
 void SPI1_Config(void);       // Setup the SPI1 peripheral using your driver
 void MPU6500_CS_Config(void); // Setup a GPIO (like PA4) as the Chip Select
 
-
-
-
 uint8_t MPU6500_Write(uint8_t reg_addr, uint8_t data);
 uint8_t MPU6500_Read(uint8_t reg_addr);
 
 // MPU6500 Specific
 void MPU6500_Init(void);
-void MPU6500_Read_RawData(int16_t* pAccel, int16_t* pGyro);
+void MPU6500_Read_RawData(int16_t *pAccel, int16_t *pGyro);
 
-void process_data(int16_t* raw_acc, int16_t* raw_gyro, float* off_acc, float* off_gyro);
+void process_data(int16_t *raw_acc, int16_t *raw_gyro, float *off_acc,
+		float *off_gyro);
 MPU6500_FinalValue_t* MPU6500_GetData(void);
 void MPU6500_Calibrate();
 

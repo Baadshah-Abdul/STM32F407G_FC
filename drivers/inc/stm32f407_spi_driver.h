@@ -8,25 +8,27 @@
 #include "stm32f407.h"
 #include <stddef.h>
 
-typedef struct {
-    uint8_t SPI_DeviceMode;
-    uint8_t SPI_BusConfig;
-    uint8_t SPI_SclkSpeed;
-    uint8_t SPI_DFF;
-    uint8_t SPI_CPOL;
-    uint8_t SPI_CPHA;
-    uint8_t SPI_SSM;
+typedef struct
+{
+	uint8_t SPI_DeviceMode;
+	uint8_t SPI_BusConfig;
+	uint8_t SPI_SclkSpeed;
+	uint8_t SPI_DFF;
+	uint8_t SPI_CPOL;
+	uint8_t SPI_CPHA;
+	uint8_t SPI_SSM;
 } SPI_Config_t;
 
-typedef struct {
-    SPI_RegDef_t *pSPIx;
-    SPI_Config_t SPIConfig;
-    uint8_t *pTxBuffer;
-    uint8_t *pRxBuffer;
-    uint32_t TxLen;
-    uint32_t RxLen;
-    uint8_t TxState;
-    uint8_t RxState;
+typedef struct
+{
+	SPI_RegDef_t *pSPIx;
+	SPI_Config_t SPIConfig;
+	uint8_t *pTxBuffer;
+	uint8_t *pRxBuffer;
+	uint32_t TxLen;
+	uint32_t RxLen;
+	uint8_t TxState;
+	uint8_t RxState;
 } SPI_Handle_t;
 
 #define SPI_READY        0
@@ -85,8 +87,10 @@ void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
 void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
 void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority);
 void SPI_IRQHandling(SPI_Handle_t *pHandle);
-uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
-uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
+uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer,
+		uint32_t Len);
+uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer,
+		uint32_t Len);
 void SPI_CloseTransmisson(SPI_Handle_t *pSPIHandle);
 void SPI_CloseReception(SPI_Handle_t *pSPIHandle);
 void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t AppEv);

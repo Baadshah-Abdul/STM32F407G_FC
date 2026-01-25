@@ -13,7 +13,6 @@
 #define __vo volatile
 #define __weak __attribute__((weak))
 
-
 //******************processor specific details
 
 //nvic iserx
@@ -83,7 +82,8 @@
 #define SYSCFG_BASEADDR         (APB2PERIPH_BASEADDR + 0x3800)
 
 // GPIO Register Structure
-typedef struct {
+typedef struct
+{
 	__vo uint32_t MODER;     // 0x00 - GPIO port mode register
 	__vo uint32_t OTYPER;    // 0x04 - GPIO port output type register
 	__vo uint32_t OSPEEDR;   // 0x08 - GPIO port output speed register
@@ -109,7 +109,6 @@ typedef struct
 	__vo uint32_t I2SPR;      // 0x20 - SPI_I2S prescaler register
 } SPI_RegDef_t;
 
-
 // GPIO Peripheral Definitions
 #define GPIOA   ((GPIO_RegDef_t*)GPIOA_BASEADDR)
 #define GPIOB   ((GPIO_RegDef_t*)GPIOB_BASEADDR)
@@ -127,7 +126,8 @@ typedef struct
 #define SPI3  				((SPI_RegDef_t*)SPI3_BASEADDR)
 
 // RCC Register Structure
-typedef struct {
+typedef struct
+{
 	__vo uint32_t CR;             // 0x00
 	__vo uint32_t PLLCFGR;        // 0x04
 	__vo uint32_t CFGR;           // 0x08
@@ -165,7 +165,8 @@ typedef struct {
 } RCC_RegDef_t;
 
 //EXTI register structure
-typedef struct {									//OFFSET
+typedef struct
+{									//OFFSET
 	__vo uint32_t IMR;				//0x00
 	__vo uint32_t EMR;				//0x04
 	__vo uint32_t RTSR;				//0x08
@@ -174,7 +175,8 @@ typedef struct {									//OFFSET
 	__vo uint32_t PR;				//0x14
 } EXTI_RegDef_t;
 
-typedef struct {									//OFFSET
+typedef struct
+{									//OFFSET
 	__vo uint32_t MEMRMP;			//0x00
 	__vo uint32_t PMC;				//0x04
 	__vo uint32_t EXTICR[4];		//0x08-0x14
@@ -228,7 +230,6 @@ typedef struct {									//OFFSET
 
 #define TIM4_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 2))
 
-
 // Clock disable macros for GPIOx peripherals
 #define GPIOA_PCLK_DI()		(RCC->AHB1ENR &= ~(1 << 0))
 #define GPIOB_PCLK_DI()		(RCC->AHB1ENR &= ~(1 << 1))
@@ -273,7 +274,6 @@ typedef struct {									//OFFSET
 #define SPI2_REG_RESET()      do{ (RCC->APB1RSTR |= (1 << 14)); (RCC->APB1RSTR &= ~(1 << 14)); }while(0)
 #define SPI3_REG_RESET()      do{ (RCC->APB1RSTR |= (1 << 15)); (RCC->APB1RSTR &= ~(1 << 15)); }while(0)
 
-
 #define GPIOA_BASEADDR_TO_CODE(x)	  (	(x == GPIOA) ? 0:\
 										(x == GPIOB) ? 1:\
 										(x == GPIOC) ? 2:\
@@ -295,7 +295,6 @@ typedef struct {									//OFFSET
 #define IRQ_NO_SPI1			35
 #define IRQ_NO_SPI2         36
 #define IRQ_NO_SPI3         51
-#define IRQ_NO_SPI4
 
 // macros for priority level
 #define NVIC_IRQ_PRI0    	0
@@ -350,7 +349,6 @@ typedef struct {									//OFFSET
 #define SPI_CR2_RXNEIE				 	6
 #define SPI_CR2_TXEIE					7
 
-
 //Bit position definitions SPI_SR
 #define SPI_SR_RXNE						0
 #define SPI_SR_TXE				 		1
@@ -379,23 +377,23 @@ typedef struct {									//OFFSET
 
 typedef struct
 {
-  __vo uint32_t CR1;    // 0x00 - Control register 1
-  __vo uint32_t CR2;    // 0x04 - Control register 2
-  __vo uint32_t SMCR;   // 0x08 - Slave mode control register
-  __vo uint32_t DIER;   // 0x0C - Interrupt enable register
-  __vo uint32_t SR;     // 0x10 - Status register
-  __vo uint32_t EGR;    // 0x14 - Event generation register
-  __vo uint32_t CCMR1;  // 0x18 - Capture/compare mode register 1
-  __vo uint32_t CCMR2;  // 0x1C - Capture/compare mode register 2
-  __vo uint32_t CCER;   // 0x20 - Capture/compare enable register
-  __vo uint32_t CNT;    // 0x24 - Counter register
-  __vo uint32_t PSC;    // 0x28 - Prescaler register
-  __vo uint32_t ARR;    // 0x2C - Auto-reload register
-  uint32_t      RESERVED; // 0x30
-  __vo uint32_t CCR1;   // 0x34 - Capture/compare register 1
-  __vo uint32_t CCR2;   // 0x38 - Capture/compare register 2
-  __vo uint32_t CCR3;   // 0x3C - Capture/compare register 3
-  __vo uint32_t CCR4;   // 0x40 - Capture/compare register 4
+	__vo uint32_t CR1;    // 0x00 - Control register 1
+	__vo uint32_t CR2;    // 0x04 - Control register 2
+	__vo uint32_t SMCR;   // 0x08 - Slave mode control register
+	__vo uint32_t DIER;   // 0x0C - Interrupt enable register
+	__vo uint32_t SR;     // 0x10 - Status register
+	__vo uint32_t EGR;    // 0x14 - Event generation register
+	__vo uint32_t CCMR1;  // 0x18 - Capture/compare mode register 1
+	__vo uint32_t CCMR2;  // 0x1C - Capture/compare mode register 2
+	__vo uint32_t CCER;   // 0x20 - Capture/compare enable register
+	__vo uint32_t CNT;    // 0x24 - Counter register
+	__vo uint32_t PSC;    // 0x28 - Prescaler register
+	__vo uint32_t ARR;    // 0x2C - Auto-reload register
+	uint32_t RESERVED; // 0x30
+	__vo uint32_t CCR1;   // 0x34 - Capture/compare register 1
+	__vo uint32_t CCR2;   // 0x38 - Capture/compare register 2
+	__vo uint32_t CCR3;   // 0x3C - Capture/compare register 3
+	__vo uint32_t CCR4;   // 0x40 - Capture/compare register 4
 } TIM_RegDef_t;
 
 #define TIM1                ((TIM_RegDef_t*)TIM1_BASEADDR)
@@ -415,6 +413,5 @@ typedef struct
 
 #include "stm32f407_gpio_driver.h"
 #include "stm32f407_spi_driver.h"
-
 
 #endif /* INC_STM32F407_H_ */

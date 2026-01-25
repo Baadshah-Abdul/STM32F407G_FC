@@ -7,31 +7,37 @@
 
 #include "pid.h"
 
-float PID_Compute(PID_Config_t* pid, float setpoint, float measured_value, float dt) {
-    float error = setpoint - measured_value;
+float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value,
+		float dt)
+{
+	float error = setpoint - measured_value;
 
-    // Proportional
-    float P = pid->Kp * error;
+	// Proportional
+	float P = pid->Kp * error;
 
-    // Integral
-    pid->integral += error * dt;
-    // Limit the accumulated integral to prevent "Windup"
-    float i_limit = 150.0f;
-    if (pid->integral > i_limit) pid->integral = i_limit;
-    if (pid->integral < -i_limit) pid->integral = -i_limit;
+	// Integral
+	pid->integral += error * dt;
+	// Limit the accumulated integral to prevent "Windup"
+	float i_limit = 150.0f;
+	if (pid->integral > i_limit)
+		pid->integral = i_limit;
+	if (pid->integral < -i_limit)
+		pid->integral = -i_limit;
 
-    float I = pid->Ki * pid->integral;
+	float I = pid->Ki * pid->integral;
 
-    // Derivative
-    float D = pid->Kd * (error - pid->prev_error) / dt;		//error -
-    pid->prev_error = error;
+	// Derivative
+	float D = pid->Kd * (error - pid->prev_error) / dt;		//error -
+	pid->prev_error = error;
 
-    //PID value
-    float output = P + I + D;
+	//PID value
+	float output = P + I + D;
 
-    // External Output Limiting
-    if (output > pid->output_limit) output = pid->output_limit;
-    if (output < -pid->output_limit) output = -pid->output_limit;
+	// External Output Limiting
+	if (output > pid->output_limit)
+		output = pid->output_limit;
+	if (output < -pid->output_limit)
+		output = -pid->output_limit;
 
-    return output;
+	return output;
 }

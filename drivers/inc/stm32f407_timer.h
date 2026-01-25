@@ -8,16 +8,16 @@
 #ifndef INC_STM32F407_TIMER_H_
 #define INC_STM32F407_TIMER_H_
 
-
 #include "stm32f407.h"
 
 //SYSTICK REGISTER DEFINITIONS
 
-typedef struct {
-    __vo uint32_t CTRL;    // Control and Status Register
-    __vo uint32_t LOAD;    // Reload Value Register
-    __vo uint32_t VAL;     // Current Value Register
-    __vo uint32_t CALIB;   // Calibration Register
+typedef struct
+{
+	__vo uint32_t CTRL;    // Control and Status Register
+	__vo uint32_t LOAD;    // Reload Value Register
+	__vo uint32_t VAL;     // Current Value Register
+	__vo uint32_t CALIB;   // Calibration Register
 } SysTick_RegDef_t;
 
 #define SYSTICK_BASE        (0xE000E010)
@@ -30,17 +30,18 @@ typedef struct {
 
 // TIMER CONFIGURATION STRUCTURE
 // To initialize any general-purpose timer
-typedef struct {
-    uint32_t Timer_Prescaler;
-    uint32_t Timer_Period;      // Auto-reload value (ARR)
-    uint32_t Timer_Mode;        // Upcounter/Downcounter
+typedef struct
+{
+	uint32_t Timer_Prescaler;
+	uint32_t Timer_Period;      // Auto-reload value (ARR)
+	uint32_t Timer_Mode;        // Upcounter/Downcounter
 } Timer_Config_t;
 
-typedef struct {
-    TIM_RegDef_t *pTIMx;        // Base address of the timer
-    Timer_Config_t TimerConfig;
+typedef struct
+{
+	TIM_RegDef_t *pTIMx;        // Base address of the timer
+	Timer_Config_t TimerConfig;
 } Timer_Handle_t;
-
 
 void SysTick_Init(uint32_t ticks);
 uint32_t get_ms(void);
