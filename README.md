@@ -4,4 +4,4 @@
  Currently written: GPIO, SPI, TIMERS<br>
  Src->main.c : code for drone stabalization. NO controls implemented at the moment<br>
  drivers->inc : header files<br>
- driver->src : implementation
+ drivers->src : implementation
