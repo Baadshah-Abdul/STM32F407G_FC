@@ -48,19 +48,19 @@ void delay_ms(uint32_t ms)
  */
 void Timer_Init(Timer_Handle_t *pTimerHandle)
 {
-	// 1. Set the Prescaler (PSC) to slow down the clock
+	// Set the Prescaler (PSC) to slow down the clock
 	pTimerHandle->pTIMx->PSC = pTimerHandle->TimerConfig.Timer_Prescaler;
 
-	// 2. Set the Auto-reload value (ARR) to define the frequency
+	// Auto-reload value (ARR) to define the frequency
 	pTimerHandle->pTIMx->ARR = pTimerHandle->TimerConfig.Timer_Period;
 
-	// 3. Configure the counter mode (Up/Down)
+	//Configure the counter mode (Up/Down)
 	if (pTimerHandle->TimerConfig.Timer_Mode == 0)
 	{ // Assuming 0 is Upcounter
 		pTimerHandle->pTIMx->CR1 &= ~(1 << 4); // CMS bits
 	}
 
-	// 4. Enable the counter
+	// Enable the counter
 	pTimerHandle->pTIMx->CR1 |= (1 << 0); // CEN bit
 }
 
