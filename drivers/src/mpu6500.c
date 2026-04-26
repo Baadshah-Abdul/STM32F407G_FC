@@ -154,7 +154,7 @@ void process_data(int16_t *raw_acc, int16_t *raw_gyro, float *off_acc,
 	float gy_now = (raw_gyro[1] - off_gyro[1]) / 16.4f;
 	float gz_now = (raw_gyro[2] - off_gyro[2]) / 16.4f;
 
-	float GYRO_ALPHA = 0.4f;
+	float GYRO_ALPHA = 0.1f;
 	float ACCEL_ALPHA = 0.1f;
 	// Low Pass Filter (LPF)
 	// Formula: Output = (Old * 0.95) + (New * 0.05)
@@ -180,7 +180,7 @@ MPU6500_FinalValue_t* MPU6500_GetData(void)
 
 void MPU6500_Calibrate()
 {
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 2000; i++)
 	{
 		MPU6500_Read_RawData(mpu_data.accel_raw, mpu_data.gyro_raw);
 		mpu_data.ax_sum += mpu_data.accel_raw[0];
@@ -198,12 +198,12 @@ void MPU6500_Calibrate()
 		delay_ms(5);
 	}
 
-	mpu_data.ax_off = (float) mpu_data.ax_sum / 1000.0f;
-	mpu_data.ay_off = (float) mpu_data.ay_sum / 1000.0f;
-	mpu_data.az_off = (float) mpu_data.az_sum / 1000.0f;
-	mpu_data.gx_off = (float) mpu_data.gx_sum / 1000.0f;
-	mpu_data.gy_off = (float) mpu_data.gy_sum / 1000.0f;
-	mpu_data.gz_off = (float) mpu_data.gz_sum / 1000.0f;
+	mpu_data.ax_off = (float) mpu_data.ax_sum / 2000.0f;
+	mpu_data.ay_off = (float) mpu_data.ay_sum / 2000.0f;
+	mpu_data.az_off = (float) mpu_data.az_sum / 2000.0f;
+	mpu_data.gx_off = (float) mpu_data.gx_sum / 2000.0f;
+	mpu_data.gy_off = (float) mpu_data.gy_sum / 2000.0f;
+	mpu_data.gz_off = (float) mpu_data.gz_sum / 2000.0f;
 
 }
 
@@ -223,10 +223,8 @@ void MPU6500_CalculateAngles(void)
 	// 0.98 trusts the gyro for short-term changes
 	// 0.02 uses the accelerometer to fix long-term drift
 
-	mpu_data.roll = 0.98f * (mpu_data.roll + mpu_data.gyro_f[0] * DT)
-			+ 0.02f * acc_roll;
-	mpu_data.pitch = 0.98f * (mpu_data.pitch + mpu_data.gyro_f[1] * DT)
-			+ 0.02f * acc_pitch;
+	mpu_data.roll  = 0.96f * (mpu_data.roll  + mpu_data.gyro_f[0] * DT) + 0.04f * acc_roll;
+	mpu_data.pitch = 0.96f * (mpu_data.pitch + mpu_data.gyro_f[1] * DT) + 0.04f * acc_pitch;
 }
 
 

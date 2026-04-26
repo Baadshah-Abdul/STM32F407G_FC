@@ -30,6 +30,7 @@ int main()
 
 	SPI_PeripheralControl(SPI1, ENABLE);
 	MPU6500_Init();
+	printf("MPU init done\n");
 
 	uint8_t whoami = MPU6500_Read(MPU_WHO_AM_I);
 	if (whoami == 0x70)
@@ -59,7 +60,9 @@ int main()
 	printf("now\n");
 
 	PWM_Arm();
+	printf("Armed. Waiting 9s...\n");   // ADD
 	delay_ms(9000);
+	printf("Entering loop\n");          // ADD
 
 	float base_throttle = 1150.0f;
 	//pid struct
@@ -84,6 +87,7 @@ int main()
 			last_time = get_ms();
 
 			MPU6500_Read_RawData(sensor->accel_raw, sensor->gyro_raw);
+
 			float acc_offsets[3] =
 			{ sensor->ax_off, sensor->ay_off, sensor->az_off };
 			float gyro_offsets[3] =
@@ -97,7 +101,6 @@ int main()
 			float pitch_corr = PID_Compute(&pidPitch, 0.0f, sensor->pitch, dt);
 			float roll_corr = PID_Compute(&pidRoll, 0.0f, sensor->roll, dt);
 			float yaw_corr = PID_Compute(&pidYaw, 0.0f, sensor->gyro_f[2], dt);
-
 
 			PWM_RP(base_throttle, pitch_corr, roll_corr, yaw_corr);
 
@@ -122,8 +125,7 @@ int main()
 			// Only print every 20th loop
 			if (print_divider++ >= 20)
 			{
-				printf("Roll: %.2f | Pitch: %.2f\n", sensor->roll,
-						sensor->pitch);
+				printf("Roll: %.2f Pitch: %.2f\n", sensor->roll, sensor->pitch);
 				print_divider = 0;
 			}
 		}
