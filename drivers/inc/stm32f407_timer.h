@@ -43,9 +43,12 @@ typedef struct
 	Timer_Config_t TimerConfig;
 } Timer_Handle_t;
 
+// Get the actual frequency and divide by 1000 to get ticks per millisecond
+uint32_t Get_SYSCLK(void);
 void SysTick_Init(uint32_t ticks);
 uint32_t get_ms(void);
 void delay_ms(uint32_t ms);
+uint32_t Get_PeriCLK(void);
 void Timer_Init(Timer_Handle_t *pTimerHandle);
 
 #endif /* INC_STM32F407_TIMER_H_ */

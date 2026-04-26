@@ -7,8 +7,7 @@
 
 #include "pid.h"
 
-float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value,
-		float dt)
+float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value, float dt)
 {
 	float error = setpoint - measured_value;
 
@@ -18,7 +17,8 @@ float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value,
 	// Integral
 	pid->integral += error * dt;
 	// Limit the accumulated integral to prevent "Windup"
-	float i_limit = 150.0f;
+	float i_limit = (pid->i_limit > 0.0f) ? pid->i_limit : 150.0f;
+
 	if (pid->integral > i_limit)
 		pid->integral = i_limit;
 	if (pid->integral < -i_limit)
@@ -27,7 +27,12 @@ float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value,
 	float I = pid->Ki * pid->integral;
 
 	// Derivative
-	float D = pid->Kd * (error - pid->prev_error) / dt;		//error -
+	float D = 0.0f;
+	if (pid->prev_error != 0.0f || pid->integral != 0.0f)
+	{
+	    // Only compute derivative after first real sample
+	    D = pid->Kd * (error - pid->prev_error) / dt;
+	}
 	pid->prev_error = error;
 
 	//PID value

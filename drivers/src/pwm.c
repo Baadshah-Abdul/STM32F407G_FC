@@ -37,12 +37,14 @@ void PWM_GPIO_Config(void)
 void PWM_TIM_Config(void)
 {
 
-	// 1. You MUST use the actual hardware pointer from your header file
 	TIM_RegDef_t *pTIM4 = TIM4;
+	uint32_t pclk = Get_PeriCLK();
 
-	// 2. Setup the Time Base
-	pTIM4->PSC = 15;    // Prescaler: 16MHz / (15+1) = 1MHz
-	pTIM4->ARR = 2499;  // Period: 1MHz / 2500 = 400Hz frequency
+	//Setup the Time Base
+	pTIM4->PSC = (pclk/1000000) - 1;    // Prescalar (16MHz/1000000) - 1 = 1MHz
+	//pTIM4->ARR = 2499;  // Period: 1MHz / 2500 = 400Hz frequency
+	pTIM4->ARR = 19999;  // 1MHz / 20000 = 50Hz (20ms period) for standard ESCs
+
 
 	pTIM4->CCMR1 |= (0x6 << 4) | (1 << 3);  // Channel 1
 	pTIM4->CCMR1 |= (0x6 << 12) | (1 << 11); // Channel 2
@@ -58,19 +60,19 @@ void PWM_TIM_Config(void)
 
 void PWM_Arm(void)
 {
-	TIM4->CCR1 = 1000;
-	TIM4->CCR2 = 1000;
-	TIM4->CCR3 = 1000;
-	TIM4->CCR4 = 1000;
+	TIM4->CCR1 = PWM_MIN;
+	TIM4->CCR2 = PWM_MIN;
+	TIM4->CCR3 = PWM_MIN;
+	TIM4->CCR4 = PWM_MIN;
 	armed = 1;
 }
 
 void PWM_DisArm(void)
 {
-	TIM4->CCR1 = 1000;
-	TIM4->CCR2 = 1000;
-	TIM4->CCR3 = 1000;
-	TIM4->CCR4 = 1000;
+	TIM4->CCR1 = PWM_DISARM;
+	TIM4->CCR2 = PWM_DISARM;
+	TIM4->CCR3 = PWM_DISARM;
+	TIM4->CCR4 = PWM_DISARM;
 	armed = 0;
 
 }
@@ -85,31 +87,24 @@ float constrain(float value, float min, float max)
 	return value;
 }
 
-void PWM_RP(float throttle, float pitch_correction, float roll_correction)
+void PWM_RP(float throttle, float pitch_correction, float roll_correction, float yaw_correction)
 {
-	if (armed)
-	{
-		float min_spin = 1080.0f;
+    if (armed)
+    {
+        float min_spin = PWM_MIN_SPIN;
 
-		// Motor 1 (Front Left):
-		TIM4->CCR1 = constrain(throttle - pitch_correction + roll_correction,
-				min_spin, 2000);
+        // Standard X-frame mixing:
+        // M1 FL CW  → -pitch +roll +yaw
+        // M2 FR CCW → -pitch -roll -yaw
+        // M3 BL CCW → +pitch +roll -yaw
+        // M4 BR CW  → +pitch -roll +yaw
+        TIM4->CCR1 = (uint32_t)constrain(throttle - pitch_correction + roll_correction + yaw_correction, min_spin, PWM_MAX);
 
-		// Motor 2 (Front Right):
-		TIM4->CCR2 = constrain(throttle - pitch_correction - roll_correction,
-				min_spin, 2000);
+        TIM4->CCR2 = (uint32_t)constrain(throttle - pitch_correction - roll_correction - yaw_correction, min_spin, PWM_MAX);
 
-		// Motor 3 (Back Left):
-		TIM4->CCR3 = constrain(throttle + pitch_correction + roll_correction,
-				min_spin, 2000);
+        TIM4->CCR3 = (uint32_t)constrain(throttle + pitch_correction + roll_correction - yaw_correction, min_spin, PWM_MAX);
 
-		// Motor 4 (Back Right):
-		TIM4->CCR4 = constrain(throttle + pitch_correction - roll_correction,
-				min_spin, 2000);
-	}
-	else
-	{
-		PWM_DisArm();
-	}
+        TIM4->CCR4 = (uint32_t)constrain(throttle + pitch_correction - roll_correction + yaw_correction, min_spin, PWM_MAX);
+    }
+    else { PWM_DisArm(); }
 }
-

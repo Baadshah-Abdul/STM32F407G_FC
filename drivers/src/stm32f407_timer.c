@@ -9,6 +9,23 @@
 // Global variable to track system time in milliseconds
 static volatile uint32_t msTicks = 0;
 
+/***********************************************************************
+ * @fn				-
+ * @brief 			-
+ * @param			-
+ */
+uint32_t Get_SYSCLK(void) {
+    // Bits 3:2 indicate the system clock source
+    uint8_t clksrc = (RCC->CFGR >> 2) & 0x3;
+
+    switch(clksrc) {
+        case 0: return 16000000; // 00: HSI (Internal 16MHz)
+        case 1: return 8000000;  // 01: HSE (External 8MHz)
+        case 2: return 168000000; // 10: PLL (Assume max)
+        default: return 16000000;
+    }
+}
+
 /*********************************************************************
  * @fn      		  - SysTick_Init
  * @brief             - Initializes the SysTick timer for 1ms intervals
@@ -23,7 +40,7 @@ void SysTick_Init(uint32_t ticks)
 	SYSTICK_CTRL_ENABLE; /* Enable Timer & Interrupt */
 }
 
-// The ISR: Automatically called by the processor every 1ms
+// Automatically called by the processor every 1ms
 void SysTick_Handler(void)
 {
 	msTicks++;
@@ -41,26 +58,59 @@ void delay_ms(uint32_t ms)
 		;
 }
 
-/*********************************************************************
+
+/***********************************************************************
+ * @fn				-
+ * @brief 			-
+ * @param			-
+ */
+uint32_t Get_PeriCLK(void)
+{
+	uint32_t pclk = Get_SYSCLK();
+	uint32_t mask = ((1u << 3) - 1) << 10;  // 3 bits starting at bit 10
+	uint32_t result = (RCC->CFGR & mask) >> 10;
+	if(result == 0)
+	{
+		return pclk;
+	}
+	else
+	{
+		switch (result)
+		{
+		//0b to tell c im using binary
+			case 0b100: return (pclk / 2);
+				break;
+			case 0b101: return (pclk / 4);
+				break;
+			case 0b110: return (pclk / 8);
+				break;
+			case 0b111: return (pclk / 16);
+				break;
+		}
+	}
+	return 0;
+}
+
+/********************************************************************************
  * @fn      		  - Timer_Init
  * @brief             - Configures general purpose timers (TIM2-TIM5)
  * @param[in]         - pTimerHandle: Pointer to configuration handle
  */
 void Timer_Init(Timer_Handle_t *pTimerHandle)
 {
-	// 1. Set the Prescaler (PSC) to slow down the clock
+	// Set the Prescaler (PSC) to slow down the clock
 	pTimerHandle->pTIMx->PSC = pTimerHandle->TimerConfig.Timer_Prescaler;
 
-	// 2. Set the Auto-reload value (ARR) to define the frequency
+	// Set the Auto-reload value (ARR) to define the frequency
 	pTimerHandle->pTIMx->ARR = pTimerHandle->TimerConfig.Timer_Period;
 
-	// 3. Configure the counter mode (Up/Down)
+	// Configure the counter mode (Up/Down)
 	if (pTimerHandle->TimerConfig.Timer_Mode == 0)
 	{ // Assuming 0 is Upcounter
 		pTimerHandle->pTIMx->CR1 &= ~(1 << 4); // CMS bits
 	}
 
-	// 4. Enable the counter
+	// Enable the counter
 	pTimerHandle->pTIMx->CR1 |= (1 << 0); // CEN bit
 }
 

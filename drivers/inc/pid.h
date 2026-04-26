@@ -16,9 +16,9 @@ typedef struct
 	float prev_error;
 	float integral;
 	float output_limit;
+	float i_limit;
 } PID_Config_t;
 
-float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value,
-		float dt);
+float PID_Compute(PID_Config_t *pid, float setpoint, float measured_value, float dt);
 
 #endif /* INC_PID_H_ */

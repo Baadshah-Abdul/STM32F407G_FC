@@ -75,8 +75,8 @@ uint8_t MPU6500_Write(uint8_t reg_addr, uint8_t data)
 	GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_4, GPIO_PIN_RESET);
 	SPI_TransmitReceive(SPI1, reg_addr);
 	SPI_TransmitReceive(SPI1, data);
-	SPI_BUSY_WAIT
-		; // Use define from mpu6500.h
+	SPI_BUSY_WAIT;
+	while(SPI_GetFlagStatus(SPI1, SPI_RXNE_FLAG));
 	GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_4, GPIO_PIN_SET);
 	return 0;
 }
@@ -86,22 +86,27 @@ uint8_t MPU6500_Read(uint8_t reg_addr)
 	GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_4, GPIO_PIN_RESET);
 	SPI_TransmitReceive(SPI1, (uint8_t) (reg_addr | READ_BIT)); // Use READ_BIT define
 	uint8_t Rxdata = SPI_TransmitReceive(SPI1, 0x00);
-	SPI_BUSY_WAIT
-		;
+	SPI_BUSY_WAIT;
 	GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_4, GPIO_PIN_SET);
 	return Rxdata;
 }
 
 void MPU6500_Init(void)
 {
-	MPU6500_Write(PWR_MGMT_1, 0x80); // Reset
-	for (volatile int i = 0; i < 2000000; i++)
-		;    // Wait for reset to complete
-	MPU6500_Write(PWR_MGMT_1, 0x01); // Wakeup
-	MPU6500_Write(USER_CTRL, 0x10);  // Disable I2C
-	MPU6500_Write(GYRO_CONFIG, 0x18);  // +/- 2000 deg/s
-	MPU6500_Write(ACCEL_CONFIG, 0x10);  // +/- 8g
-	MPU6500_Write(CONFIG, 0x03);     // DLPF bandwidth 42Hz
+    MPU6500_Write(PWR_MGMT_1, 0x80);       // Reset device
+    for (volatile int i = 0; i < 2000000; i++); // Wait for reset
+
+    MPU6500_Write(PWR_MGMT_1, 0x01);       // Wake, use PLL clock
+    MPU6500_Write(USER_CTRL, 0x10);        // Disable I2C immediately after wake
+                                            // ← moved up, now second write after wake
+
+    // Now safe to configure — I2C already disabled
+    MPU6500_Write(SMPLRT_DIV, 0x00);       // Sample rate = Gyro rate / 1 = 1kHz
+                                            // ← ADD THIS — was missing entirely
+    MPU6500_Write(CONFIG, 0x03);           // DLPF 42Hz — do this BEFORE gyro config
+                                            // ← moved before GYRO_CONFIG
+    MPU6500_Write(GYRO_CONFIG, 0x18);      // +/- 2000 deg/s
+    MPU6500_Write(ACCEL_CONFIG, 0x10);     // +/- 8g
 }
 
 void MPU6500_Read_RawData(int16_t *pAccel, int16_t *pGyro)
@@ -150,7 +155,7 @@ void process_data(int16_t *raw_acc, int16_t *raw_gyro, float *off_acc,
 	float gz_now = (raw_gyro[2] - off_gyro[2]) / 16.4f;
 
 	float GYRO_ALPHA = 0.4f;
-	float ACCEL_ALPHA = 0.03f;
+	float ACCEL_ALPHA = 0.1f;
 	// Low Pass Filter (LPF)
 	// Formula: Output = (Old * 0.95) + (New * 0.05)
 	mpu_data.accel_f[0] = (mpu_data.accel_f[0] * (1.0f - ACCEL_ALPHA))
@@ -224,3 +229,36 @@ void MPU6500_CalculateAngles(void)
 			+ 0.02f * acc_pitch;
 }
 
+
+void MPU6500_InitialiseAngles(void)
+{
+    // Take 100 samples and average them for a stable initial reading
+    float ax_sum = 0.0f, ay_sum = 0.0f, az_sum = 0.0f;
+    int samples = 100;
+
+    for (int i = 0; i < samples; i++)
+    {
+        MPU6500_Read_RawData(mpu_data.accel_raw, mpu_data.gyro_raw);
+
+        ax_sum += (mpu_data.accel_raw[0] - mpu_data.ax_off) / 4096.0f;
+        ay_sum += (mpu_data.accel_raw[1] - mpu_data.ay_off) / 4096.0f;
+        az_sum += (mpu_data.accel_raw[2] - mpu_data.az_off) / 4096.0f;
+
+        delay_ms(5);  // same rate as main loop
+    }
+
+    // Average
+    float ax = ax_sum / samples;
+    float ay = ay_sum / samples;
+    float az = az_sum / samples;
+
+    // Seed the filter with real accelerometer angles
+    mpu_data.accel_f[0] = ax;
+    mpu_data.accel_f[1] = ay;
+    mpu_data.accel_f[2] = az;
+
+    // Seed roll and pitch directly from accel
+    // This is what CalculateAngles() uses internally
+    mpu_data.roll  = atan2f(ay, az) * 57.2957795f;
+    mpu_data.pitch = atan2f(-ax, sqrtf(ay*ay + az*az)) * 57.2957795f;
+}

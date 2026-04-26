@@ -7,6 +7,7 @@
 #include "pwm.h"
 #include "pid.h"
 
+
 int main()
 {
 	// Enable FPU: Set CP10 and CP11 Full Access
@@ -14,8 +15,13 @@ int main()
 	__vo uint32_t *pCPACR = (uint32_t*) 0xE000ED88;
 	*pCPACR |= 0xF00000;
 
-	//start timer4
-	SysTick_Init(16000);
+	uint32_t system_speed = Get_SYSCLK();
+	SysTick_Init(system_speed / 1000);
+
+	// USART2_Init() goes here when you write the driver
+
+	printf("SYSCLK: %lu Hz\n", system_speed);    // reuse already-read value
+	printf("PeriCLK: %lu Hz\n", Get_PeriCLK());
 
 	//setup of mpu6500
 	SPI1_GPIO_Config();
@@ -34,8 +40,15 @@ int main()
 	MPU6500_FinalValue_t *sensor = MPU6500_GetData();
 	MPU6500_Calibrate();
 
-	//Initialize with first real values to avoid 0.00 spike
-	sensor->accel_f[2] = 1.0f;
+	//(wrong — assumes flat)
+//	//Initialize with first real values to avoid 0.00 spike
+//	sensor->accel_f[0] = 0.0f;   // X: no tilt
+//	sensor->accel_f[1] = 0.0f;   // Y: no tilt
+//	sensor->accel_f[2] = 1.0f;   // Z: 1g upward (level)
+
+	//(correct — reads actual orientation)
+	MPU6500_InitialiseAngles();
+
 
 	uint32_t last_time = get_ms();
 	int print_divider = 0;
@@ -51,13 +64,17 @@ int main()
 	float base_throttle = 1150.0f;
 	//pid struct
 	PID_Config_t pidPitch =
-	{ .Kp = 1.0f, .Ki = 0.00f, .Kd = 0.01f, .output_limit = 400.0f };
-	PID_Config_t pidRoll =
-	{ .Kp = 1.0f, .Ki = 0.00f, .Kd = 0.01f, .output_limit = 400.0f };
+	{ .Kp=1.0f, .Ki=0.0f, .Kd=0.01f, .output_limit=400.0f, .i_limit=150.0f };
+	PID_Config_t pidRoll  =
+	{ .Kp=1.0f, .Ki=0.0f, .Kd=0.01f, .output_limit=400.0f, .i_limit=150.0f };
+	PID_Config_t pidYaw   =
+	{ .Kp=2.0f, .Ki=0.0f, .Kd=0.005f,.output_limit=400.0f, .i_limit=50.0f  };
+
 	//delta time set to 5ms else if inconsistent I & D will increase
 	float dt = 0.005f;
 
 	uint32_t safety_counter = 0;
+	uint8_t  safety_triggered = 0;
 
 	while (1)
 	{
@@ -79,21 +96,28 @@ int main()
 			// PID
 			float pitch_corr = PID_Compute(&pidPitch, 0.0f, sensor->pitch, dt);
 			float roll_corr = PID_Compute(&pidRoll, 0.0f, sensor->roll, dt);
+			float yaw_corr = PID_Compute(&pidYaw, 0.0f, sensor->gyro_f[2], dt);
 
-			PWM_RP(base_throttle, pitch_corr, roll_corr);
 
-			safety_counter++;
-			if (safety_counter >= 6000)
+			PWM_RP(base_throttle, pitch_corr, roll_corr, yaw_corr);
+
+			if (!safety_triggered)
 			{
-				if (armed == 1)
-				{
-					printf("Safety limit reached. Disarming motors.\n");
-				}
-				PWM_DisArm();
-				pidPitch.Ki = 0.0f;
-				pidRoll.Ki = 0.0f;
-				safety_counter = 6001;
+			    safety_counter++;
+			    if (safety_counter >= 6000)    // 30 seconds at 200Hz
+			    {
+			        printf("Safety: 30s limit. Disarming.\n");
+			        PWM_DisArm();
+			        pidPitch.integral = 0.0f;
+			        pidRoll.integral  = 0.0f;
+			        pidPitch.Ki       = 0.0f;
+			        pidRoll.Ki        = 0.0f;
+			        pidYaw.integral = 0.0f;
+			        pidYaw.Ki       = 0.0f;
+			        safety_triggered  = 1;
+			    }
 			}
+				// Later: CRSF arm switch will replace safety_triggered entirely
 
 			// Only print every 20th loop
 			if (print_divider++ >= 20)

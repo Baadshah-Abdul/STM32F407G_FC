@@ -37,7 +37,6 @@
 #define MPU6500_GYRO_SENS_			16.4f
 #define ALPHA						0.9996f
 
-#define FILTER_SIZE 				4 //8 prev
 
 typedef struct
 {
@@ -80,5 +79,7 @@ MPU6500_FinalValue_t* MPU6500_GetData(void);
 void MPU6500_Calibrate();
 
 void MPU6500_CalculateAngles(void);
+
+void MPU6500_InitialiseAngles(void);
 
 #endif /* INC_MPU6500_H_ */
