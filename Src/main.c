@@ -41,12 +41,6 @@ int main()
 	MPU6500_FinalValue_t *sensor = MPU6500_GetData();
 	MPU6500_Calibrate();
 
-	//(wrong — assumes flat)
-//	//Initialize with first real values to avoid 0.00 spike
-//	sensor->accel_f[0] = 0.0f;   // X: no tilt
-//	sensor->accel_f[1] = 0.0f;   // Y: no tilt
-//	sensor->accel_f[2] = 1.0f;   // Z: 1g upward (level)
-
 	//(correct — reads actual orientation)
 	MPU6500_InitialiseAngles();
 

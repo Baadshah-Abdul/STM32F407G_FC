@@ -32,7 +32,7 @@ typedef struct
 	uint8_t TxRxState;
 	uint8_t DevAddr;
 	uint32_t RxSize;
-	uint8_t Sr;
+	uint8_t SR;
 }I2C_Handle_t;
 
 
@@ -55,6 +55,7 @@ typedef struct
 #define I2C_FM_DUTY_2        0
 #define I2C_FM_DUTY_16_9     1
 
+
 //I2C Status Flag
 #define I2C_FLAG_TXE   		( 1 << I2C_SR1_TXE)
 #define I2C_FLAG_RXNE   	( 1 << I2C_SR1_RXNE)
@@ -69,6 +70,7 @@ typedef struct
 #define I2C_FLAG_ADDR 		( 1 << I2C_SR1_ADDR)
 #define I2C_FLAG_TIMEOUT 	( 1 << I2C_SR1_TIMEOUT)
 
+//for repeated start
 #define I2C_DISABLE_SR  	RESET
 #define I2C_ENABLE_SR   	SET
 
@@ -89,7 +91,7 @@ void I2C_PeriClockControl(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
 void I2C_Init(I2C_Handle_t *pI2CHandle);
 void I2C_DeInit(I2C_RegDef_t *pI2Cx);
 
-void I2C_MasterSendData(I2C_Handle_t *pI2CHandle,uint8_t *pTxbuffer, uint32_t Len, uint8_t SlaveAddr,uint8_t Sr);
+void I2C_MasterSendData(I2C_Handle_t *pI2CHandle,uint8_t *pTxbuffer, uint8_t Len, uint8_t SlaveAddr,uint8_t Sr);
 void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr,uint8_t Sr);
 uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pTxbuffer, uint32_t Len, uint8_t SlaveAddr,uint8_t Sr);
 uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle,uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr,uint8_t Sr);
@@ -111,6 +113,7 @@ void I2C_PeripheralControl(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi);
 uint8_t I2C_GetFlagStatus(I2C_RegDef_t *pI2Cx , uint32_t FlagName);
 void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnorDi);
 void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx);
+
 
 void I2C_SlaveEnableDisableCallbackEvents(I2C_RegDef_t *pI2Cx,uint8_t EnorDi);
 
