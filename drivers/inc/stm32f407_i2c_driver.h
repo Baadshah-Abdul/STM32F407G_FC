@@ -28,11 +28,11 @@ typedef struct
 	uint8_t *pTxBuffer;
 	uint8_t *pRxBuffer;
 	uint8_t TxLen;
-	uint8_t Rxlen;
+	uint8_t RxLen;
 	uint8_t TxRxState;
-	uint8_t DevAddr;
+	uint8_t DevAddr;		//slave/device address
 	uint32_t RxSize;
-	uint8_t SR;
+	uint8_t SR;				//repeated start
 }I2C_Handle_t;
 
 

@@ -323,6 +323,9 @@ typedef struct
 #define IRQ_NO_SPI1			35
 #define IRQ_NO_SPI2         36
 #define IRQ_NO_SPI3         51
+#define IRQ_NO_I2C1_EV		31
+#define IRQ_NO_I2C1_ER		32
+
 
 // macros for priority level
 #define NVIC_IRQ_PRI0    	0

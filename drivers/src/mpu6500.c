@@ -124,8 +124,8 @@ void MPU6500_Read_RawData(int16_t *pAccel, int16_t *pGyro)
 		buffer[i] = SPI_TransmitReceive(SPI1, 0x00);
 	}
 
-	SPI_BUSY_WAIT
-		;
+	SPI_BUSY_WAIT;
+
 	GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_NO_4, GPIO_PIN_SET);
 
 	// Combine High and Low bytes
