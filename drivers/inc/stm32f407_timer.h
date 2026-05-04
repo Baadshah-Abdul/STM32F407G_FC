@@ -51,4 +51,9 @@ void delay_ms(uint32_t ms);
 uint32_t Get_PeriCLK(void);
 void Timer_Init(Timer_Handle_t *pTimerHandle);
 
+/************REPLACE LATER&+**************/
+uint32_t Get_PCLK2(void);
+uint32_t Get_PCLK1(void);
+
+
 #endif /* INC_STM32F407_TIMER_H_ */

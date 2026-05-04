@@ -14,16 +14,22 @@ static volatile uint32_t msTicks = 0;
  * @brief 			-
  * @param			-
  */
-uint32_t Get_SYSCLK(void) {
-    // Bits 3:2 indicate the system clock source
-    uint8_t clksrc = (RCC->CFGR >> 2) & 0x3;
+uint32_t Get_SYSCLK(void)
+{
+	// Bits 3:2 indicate the system clock source
+	uint8_t clksrc = (RCC->CFGR >> 2) & 0x3;
 
-    switch(clksrc) {
-        case 0: return 16000000; // 00: HSI (Internal 16MHz)
-        case 1: return 8000000;  // 01: HSE (External 8MHz)
-        case 2: return 168000000; // 10: PLL (Assume max)
-        default: return 16000000;
-    }
+	switch (clksrc)
+	{
+	case 0:
+		return 16000000; // 00: HSI (Internal 16MHz)
+	case 1:
+		return 8000000;  // 01: HSE (External 8MHz)
+	case 2:
+		return 168000000; // 10: PLL (Assume max)
+	default:
+		return 16000000;
+	}
 }
 
 /*********************************************************************
@@ -35,9 +41,8 @@ void SysTick_Init(uint32_t ticks)
 {
 	SYSTICK->LOAD = ticks - 1; /* Set reload value */
 	SYSTICK->VAL = 0; /* Clear current value */
-	SYSTICK->CTRL = SYSTICK_CTRL_CLKSOURCE |
-	SYSTICK_CTRL_TICKINT |
-	SYSTICK_CTRL_ENABLE; /* Enable Timer & Interrupt */
+	SYSTICK->CTRL = SYSTICK_CTRL_CLKSOURCE | SYSTICK_CTRL_TICKINT
+			| SYSTICK_CTRL_ENABLE; /* Enable Timer & Interrupt */
 }
 
 // Automatically called by the processor every 1ms
@@ -58,7 +63,6 @@ void delay_ms(uint32_t ms)
 		;
 }
 
-
 /***********************************************************************
  * @fn				-
  * @brief 			-
@@ -69,7 +73,7 @@ uint32_t Get_PeriCLK(void)
 	uint32_t pclk = Get_SYSCLK();
 	uint32_t mask = ((1u << 3) - 1) << 10;  // 3 bits starting at bit 10
 	uint32_t result = (RCC->CFGR & mask) >> 10;
-	if(result == 0)
+	if (result == 0)
 	{
 		return pclk;
 	}
@@ -78,14 +82,18 @@ uint32_t Get_PeriCLK(void)
 		switch (result)
 		{
 		//0b to tell c im using binary
-			case 0b100: return (pclk / 2);
-				break;
-			case 0b101: return (pclk / 4);
-				break;
-			case 0b110: return (pclk / 8);
-				break;
-			case 0b111: return (pclk / 16);
-				break;
+		case 0b100:
+			return (pclk / 2);
+			break;
+		case 0b101:
+			return (pclk / 4);
+			break;
+		case 0b110:
+			return (pclk / 8);
+			break;
+		case 0b111:
+			return (pclk / 16);
+			break;
 		}
 	}
 	return 0;
@@ -112,5 +120,18 @@ void Timer_Init(Timer_Handle_t *pTimerHandle)
 
 	// Enable the counter
 	pTimerHandle->pTIMx->CR1 |= (1 << 0); // CEN bit
+}
+
+/***************************REMEBER TO FIX**********************/
+// For USART1, USART6 (APB2)
+uint32_t Get_PCLK2(void)
+{
+	return 16000000;  // APB2 = 16MHz
+}
+
+// For USART2, USART3, UART4, UART5 (APB1)
+uint32_t Get_PCLK1(void)
+{
+	return 16000000;  // APB1 = 16MHz
 }
 
