@@ -320,6 +320,9 @@ void CRSF_Init(void)
 	// call USART_Init()
 	USART_Init(&CRSF_Pins);
 
+	// MANUALLY ENABLE RX INVERSION - CRITICAL FOR CRSF!
+	USART2->USART_CR2 |= (1 << 21);  // Set RXINV bit
+
 	// ── Enable interrupt ─────────────────────────────
 
 	// call USART_IRQInterruptConfig with IRQ_NO_USART2, ENABLE

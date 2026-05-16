@@ -26,7 +26,6 @@ int main()
 	// reason: CRSF must be ready before the main loop starts
 	CRSF_Init();
 
-
 	printf("SYSCLK: %lu Hz\n", system_speed);
 	printf("PeriCLK: %lu Hz\n", Get_PeriCLK());
 
@@ -161,11 +160,9 @@ int main()
 			if (print_divider++ >= 20)
 			{
 				printf("Roll: %.2f Pitch: %.2f, Throttle: %d\n",
-						sensor->roll, sensor->pitch,rc->ch[4]);
+						sensor->roll, sensor->pitch, rc->ch[2]);
 				print_divider = 0;
 			}
 		}
 	}
 }
-
-

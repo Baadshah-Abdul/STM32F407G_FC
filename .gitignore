@@ -2,7 +2,6 @@
 *
 
 # Keep git rules
-!.gitignore
 
 # Allow drivers folder and ALL its contents
 !drivers/
@@ -12,4 +11,4 @@
 !Src/
 !Src/main.c
 
-!README.md
+

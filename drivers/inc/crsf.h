@@ -41,6 +41,4 @@ void     CRSF_ParseByte(uint8_t byte);
 CRSF_Data_t* CRSF_GetChannels(void);
 uint16_t CRSF_ToUs(uint16_t raw);     // converts raw to µs
 
-
-
 #endif /* INC_CRSF_H_ */
